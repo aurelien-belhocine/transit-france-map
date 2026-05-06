@@ -65,9 +65,15 @@
      padding:15px;border-radius:8px;border:2px solid #ccc;font-family:Arial;font-size:13px;
      box-shadow:2px 2px 6px rgba(0,0,0,0.3);">
   <b style="font-size:14px;">Couverture Transit</b><br><br>
-  <span style="background:#2ecc71;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Statique + Temps réel (236)<br>
-  <span style="background:#f39c12;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Statique uniquement (139)<br>
-  <span style="background:#e74c3c;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Aucune donnée (0)<br>
+  <div id="legend-2ecc71" onclick="toggleLayer('#2ecc71', this)" style="cursor:pointer;padding:4px 0;user-select:none;transition:opacity 0.2s;">
+    <span style="background:#2ecc71;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Statique + Temps réel (236)
+  </div>
+  <div id="legend-f39c12" onclick="toggleLayer('#f39c12', this)" style="cursor:pointer;padding:4px 0;user-select:none;transition:opacity 0.2s;">
+    <span style="background:#f39c12;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Statique uniquement (139)
+  </div>
+  <div id="legend-e74c3c" onclick="toggleLayer('#e74c3c', this)" style="cursor:pointer;padding:4px 0;user-select:none;transition:opacity 0.2s;">
+    <span style="background:#e74c3c;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Aucune donnée (0)
+  </div>
   <br><small style="color:#999">Mis à jour : 2026-05-05</small>
 </div>
     <div style="position:fixed;bottom:30px;right:15px;z-index:1000;">
@@ -12496,6 +12502,30 @@
   "sticky": true,
 }
             );
-        
+
+
+    // --- Layer filter logic ---
+    var _map = map_cd4ad785ff122075259e6b31b120fafd;
+    var _layersByColor = {'#2ecc71': [], '#f39c12': [], '#e74c3c': []};
+    var _activeFilters = {'#2ecc71': true, '#f39c12': true, '#e74c3c': true};
+
+    _map.eachLayer(function(layer) {
+        if (layer instanceof L.CircleMarker) {
+            var c = layer.options.fillColor;
+            if (_layersByColor[c]) _layersByColor[c].push(layer);
+        }
+    });
+
+    function toggleLayer(color, btn) {
+        _activeFilters[color] = !_activeFilters[color];
+        var on = _activeFilters[color];
+        _layersByColor[color].forEach(function(layer) {
+            if (on) { _map.addLayer(layer); } else { _map.removeLayer(layer); }
+        });
+        btn.style.opacity = on ? '1' : '0.35';
+        btn.style.textDecoration = on ? 'none' : 'line-through';
+    }
+    // --- End layer filter logic ---
+
 </script>
 </html>
