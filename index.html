@@ -61,14 +61,45 @@
      font-family:Arial;font-size:16px;font-weight:bold;box-shadow:2px 2px 6px rgba(0,0,0,0.3);">
   Couverture Transit en France
 </div>
+    <style>
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 8px;
+    margin: 2px -8px;
+    border-radius: 6px;
+    user-select: none;
+    transition: background 0.15s, opacity 0.2s;
+  }
+  .legend-item:hover { background: #f0f0f0; }
+  .legend-item.off { opacity: 0.35; text-decoration: line-through; }
+  .legend-eye { margin-left: auto; color: #bbb; font-size: 12px; }
+</style>
     <div style="position:fixed;bottom:30px;left:30px;z-index:1000;background:white;
      padding:15px;border-radius:8px;border:2px solid #ccc;font-family:Arial;font-size:13px;
-     box-shadow:2px 2px 6px rgba(0,0,0,0.3);">
-  <b style="font-size:14px;">Couverture Transit</b><br><br>
-  <span style="background:#2ecc71;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Statique + Temps réel (236)<br>
-  <span style="background:#f39c12;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Statique uniquement (139)<br>
-  <span style="background:#e74c3c;border-radius:50%;display:inline-block;width:12px;height:12px;"></span>&nbsp; Aucune donnée (0)<br>
-  <br><small style="color:#999">Mis à jour : 2026-05-05</small>
+     box-shadow:2px 2px 6px rgba(0,0,0,0.3);min-width:220px;">
+  <b style="font-size:14px;">Couverture Transit</b>
+  <div style="font-size:11px;color:#aaa;margin-bottom:8px;margin-top:2px;">Cliquer pour filtrer</div>
+  <div id="legend-2ecc71" class="legend-item" onclick="toggleLayer('#2ecc71', this)">
+    <span style="background:#2ecc71;border-radius:50%;display:inline-block;width:12px;height:12px;flex-shrink:0;"></span>
+    Statique + Temps réel (236)
+    <i class="fa fa-eye legend-eye"></i>
+  </div>
+  <div id="legend-f39c12" class="legend-item" onclick="toggleLayer('#f39c12', this)">
+    <span style="background:#f39c12;border-radius:50%;display:inline-block;width:12px;height:12px;flex-shrink:0;"></span>
+    Statique uniquement (139)
+    <i class="fa fa-eye legend-eye"></i>
+  </div>
+  <div id="legend-e74c3c" class="legend-item" onclick="toggleLayer('#e74c3c', this)">
+    <span style="background:#e74c3c;border-radius:50%;display:inline-block;width:12px;height:12px;flex-shrink:0;"></span>
+    Aucune donnée (0)
+    <i class="fa fa-eye legend-eye"></i>
+  </div>
+  <div style="margin-top:10px;border-top:1px solid #eee;padding-top:8px;">
+    <small style="color:#999">Mis à jour : 2026-05-05</small>
+  </div>
 </div>
     <div style="position:fixed;bottom:30px;right:15px;z-index:1000;">
   <div id="custom-zoom" style="background:white;border-radius:4px;box-shadow:2px 2px 6px rgba(0,0,0,0.3);overflow:hidden;">
@@ -12496,6 +12527,31 @@
   "sticky": true,
 }
             );
-        
+
+
+    // --- Layer filter logic ---
+    var _map = map_cd4ad785ff122075259e6b31b120fafd;
+    var _layersByColor = {'#2ecc71': [], '#f39c12': [], '#e74c3c': []};
+    var _activeFilters = {'#2ecc71': true, '#f39c12': true, '#e74c3c': true};
+
+    _map.eachLayer(function(layer) {
+        if (layer instanceof L.CircleMarker) {
+            var c = layer.options.fillColor;
+            if (_layersByColor[c]) _layersByColor[c].push(layer);
+        }
+    });
+
+    function toggleLayer(color, btn) {
+        _activeFilters[color] = !_activeFilters[color];
+        var on = _activeFilters[color];
+        _layersByColor[color].forEach(function(layer) {
+            if (on) { _map.addLayer(layer); } else { _map.removeLayer(layer); }
+        });
+        btn.classList.toggle('off', !on);
+        var eye = btn.querySelector('.legend-eye');
+        if (eye) eye.className = (on ? 'fa fa-eye' : 'fa fa-eye-slash') + ' legend-eye';
+    }
+    // --- End layer filter logic ---
+
 </script>
 </html>
